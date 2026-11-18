@@ -20,8 +20,11 @@ and stiff enough.
 	button. Enter intensity in kips/ft and start and end locations in ft.
 	Loads are cut off at the beam end. The initial load is 1 kip/ft from 0 ft to
 	the full span.
+- **Include beam self-weight:** Toggle, default OFF. When ON, include the
+	selected section's self-weight as a full-span downward uniform load.
 - **Deflection limit:** Select L/240 or L/360; default L/360.
-- **Self-weight:** Ignored.
+- **Print / Save PDF:** A button in the top header bar opens the browser print
+	dialog for the current beam report.
 - **Section selection:** Choose Steel W-shape or Douglas Fir-Larch No. 2 lumber,
 	then select a listed section; default to W12x26. Steel properties use E =
 	29,000 ksi and Fb = 30 ksi. Lumber properties use E = 1,600 ksi and Fb =
@@ -45,9 +48,13 @@ and stiff enough.
 
 	| Nominal size | Dressed size (in) | Ix | Sx |
 	| --- | --- | ---: | ---: |
-	| 2x8 | 1.5 x 7.25 | 47.6 | 13.1 |
-	| 2x10 | 1.5 x 9.25 | 98.9 | 21.4 |
-	| 2x12 | 1.5 x 11.25 | 178 | 31.6 |
+	| Nominal size | Dressed size (in) | Ix | Sx | Weight (lb/ft) |
+	| --- | --- | ---: | ---: | ---: |
+	| 2x8 | 1.5 x 7.25 | 47.6 | 13.1 | 2.6 |
+	| 2x10 | 1.5 x 9.25 | 98.9 | 21.4 | 3.4 |
+	| 2x12 | 1.5 x 11.25 | 178 | 31.6 | 4.1 |
+
+	Lumber unit weights use 35 pcf.
 
 ## Calculations
 - Calculate support reactions from statics.
@@ -62,10 +69,13 @@ and stiff enough.
 	is in kip-ft and Sx is in in^3. Bending passes when fb <= Fb.
 - Deflection passes when the maximum absolute deflection is no greater than
 	L/240 or L/360, using the selected limit and L in inches.
+- When Include beam self-weight is ON, add the selected section's weight / 1000
+	(kips/ft) as a full-span downward uniform load.
 - Recommend the lightest listed section that passes both checks. For steel,
 	choose the passing section with the lowest weight, breaking ties by larger Ix.
-	For lumber, choose the first passing size in the listed order. If no listed
-	section passes, provide no recommendation.
+	For lumber, choose the first passing size in the listed order. When self-weight
+	is ON, evaluate each candidate using that candidate section's own weight. If
+	no listed section passes, provide no recommendation.
 - Display reactions and shear in kips, span positions in ft, moment in kip-ft,
 	and deflection in inches.
 
@@ -80,8 +90,16 @@ and stiff enough.
 	and red above 100% of the allowable value.
 - Show the lightest passing section suggestion with a button to apply that
 	section.
+- When self-weight is included, clearly note its added intensity on the beam
+	drawing or summary (for example, `+0.026 k/ft self-weight` for W12x26).
 - Update the drawing, diagrams, checks, and recommendation instantly whenever
 	an input changes.
+- The Print / Save PDF action opens a clean, one-page engineering calculation
+	sheet containing a header with the report title and date; a compact summary
+	table of beam parameters, section properties, deflection limit, and all point
+	and uniform loads; the beam drawing and three diagrams; and Bending and
+	Deflection results showing actual, allowable, ratio, and PASS/FAIL. Include
+	the lightest passing section suggestion when one exists.
 
 ## Look and feel
 - Use a commercial engineering web app style: light background, dark blue
@@ -89,6 +107,12 @@ and stiff enough.
 - Place inputs on the right and the drawing, diagrams, and checks on the left;
 	stack these areas on mobile.
 - Use short labels with units. 
+- For printing, use `@media print` and a portrait US Letter page. Hide interactive
+	controls, including sliders, load editor inputs, add/remove buttons, and the
+	print button, along with hover crosshairs and tooltip icons. Show a compact
+	print summary table in place of the interactive input panel. Remove drop
+	shadows and background tints, and scale spacing and diagrams so the complete
+	report fits cleanly on one page.
 
 ## Validation
 - Use L/360 for these hand-checked cases. Report reactions in kips, moment in
@@ -109,9 +133,13 @@ and stiff enough.
 	0.05 kip/ft uniform load: reactions 0.300 k up at each support; |Mmax| =
 	0.900 kip-ft; fb = 0.505 ksi, bending PASS; |ymax| = 0.147 in versus
 	0.400 in allowable, deflection PASS; overall PASS.
+- **5.** Simply supported, 20 ft, W12x26, with 1 kip/ft uniform load over the
+	full span and self-weight ON (w_total = 1.026 k/ft): reactions 10.26 k up at
+	each support; max shear = 10.26 k; max moment = 51.3 kip-ft at 10 ft;
+	fb = 18.43 ksi; max deflection = 0.624 in at 10 ft; bending PASS and
+	deflection PASS.
 
 ## Out of scope
-- Self-weight
 - Shear stress
 - Lateral-torsional buckling
 - Load combinations
